@@ -1,0 +1,2 @@
+%person% does %thing%
+%thing% does %person

@@ -1,0 +1,4 @@
+secrets.py
+Words/*
+*.log
+!Words/example.txt
