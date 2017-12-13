@@ -1,197 +1,244 @@
 #!/usr/bin/python
 
-# -*- coding: utf-8 -*-
 """
 Created on Fri Sep 30 15:15:24 2016
 
 @author: namu
 
-This old project has been repurposed as a twitter bot.
+This old project has been repurposed as a twitter bot as
+of November 2017.
 """
 
+from getopt import getopt, GetoptError
 from os import listdir
 from os.path import isfile, join
-from random import random
-from getopt import getopt,GetoptError
-import sys
+from random import choice
+from sys import argv, exit
 
-_DIRECTOR_FOLDER_NAME = "Words"
-_dictionaries = []
-_dictionaryNames = []
-
-class Core:
-    def __init__(self):
-        self._createDictionaries()
-    def _createDictionaries(self):
-        global _DIRECTOR_FOLDER_NAME
-        clear()
-        files = self._getFiles(_DIRECTOR_FOLDER_NAME)
-        for f in files:
-            Dictionary(self._scanFile(f),f.replace(".txt",""))
-    def _getFiles(self,folder):
-        try:
-            files = [f for f in listdir(folder) if isfile(join(folder,f))]
-            return files
-        except:
-            print "Path does not exist maybe"
-            sys.exit(0)
-    def _scanFile(self,f):
-        global _DIRECTOR_FOLDER_NAME
-        fi = open(join(_DIRECTOR_FOLDER_NAME,f),"r")
-        text = fi.read()
-        words = text.replace("\r","").split("\n")
-        if words[-1]=="":
-            del words[-1]
-        fi.close()
-        return words
-    def generate(self):
-        subject = None
-        limit = size()
-        sentence = pickFrom("base")
-        loop = True
-        while loop:
-            loop = False
-            for x in range(limit):
-                subject = getNameOfDictionary(x)
-                while "%"+subject+"%" in sentence:
-                    loop = True
-                    sentence = sentence.replace("%"+subject+"%",pickFrom(x),1)
-        sentence_words = sentence.split("||")
-        for i in range(len(sentence_words)):
-            if sentence_words[i][0] == "#":
-                sentence_words[i] = sentence_words[i].replace(" ","").replace("-","")
-        sentence = "||".join(sentence_words)
-        return sentence.replace("%nul%","").replace("||"," ").replace("|","")
-
-    def _debug_generate(self, log_file_name):
-        log_file = open(log_file_name, "a")
-        log_file.write("Starting creating a sentence.\n")
-        
-        subject = None
-        limit = size()
-        sentence = pickFrom("base")
-        
-        
-        loop = True
-        while loop:
-            
-            loop = False
-            
-            for x in range(limit):
-                subject = getNameOfDictionary(x)
-                while "%"+subject+"%" in sentence:
-                    loop = True
-                    log_file.write("Progression: " + sentence + "\n")
-                    sentence = sentence.replace("%"+subject+"%",pickFrom(x),1)
-
-        log_file.write("Ending sentence: " + sentence + "\n")
-        
-        sentence_words = sentence.split("||")
-
-        for i in range(len(sentence_words)):
-            if sentence_words[i][0] == "#":
-                sentence_words[i] = sentence_words[i].replace(" ","").replace("-","")
-        sentence = "||".join(sentence_words)
-
-        log_file.write("Progression: " + sentence + "\n")
-        log_file.write("Returning generated sentence: " + sentence.replace("%nul%","").replace("||"," ").replace("|","") + "\n\n")
-        log_file.close()
-        return sentence.replace("%nul%","").replace("||"," ").replace("|","")
-
-class Dictionary:
-    _words = None
-    def __init__(self,strings,name):
-        global _dictionaries
-        global _dictionaryNames
-        self._words=[]
-        self._addAll(strings)
-        _dictionaries.append(self)
-        _dictionaryNames.append(name)
-    def _addAll(self,strings):
-        for x in strings:
-            self._words.append(x)
-    def _length(self):
-        return len(self._words)
-    def _get(self,index):
-        return self._words[index]
-        
-def clear():
-    _dictionaryNames=[]
-    _dictionaries=[]
-def size():
-    return len(_dictionaryNames)
-def pickFrom(x):
-    if type(x)==str:
-        x=_dictionaryNames.index(x)
-    subject=_dictionaries[x]
-    limit=subject._length()
-    returning=subject._get(int(random()*limit))
-    return returning
-def getNameOfDictionary(x):
-    return _dictionaryNames[x]
+# If settings exist, pull the directory setting from there
+try:
+	from settings import words_directory as _DEFAULT_DIRECTORY
+except:
+	_DEFAULT_DIRECTORY = "Words"
 
 
+class Shitposter:
+	"""
+	Generates sentences using templates
+	"""
 
-def getShitpost(num=1,director_folder="Words"):
-    _DIRECTOR_FOLDER_NAME = director_folder
-    obj = Core()
-    returning=[]
-    if num==1:
-        return obj.generate()
-    for x in range(num):
-        returning.append(str(x+1)+") "+obj.generate())
-    return "\n".join(returning)
+	_dictionaries = []
+	_googleTranslate = True
 
 
-def _debug_getShitpost(num=1,director_folder="Words"):
-    _DIRECTOR_FOLDER_NAME = director_folder
-    obj = Core()
-    returning=[]
-    if num==1:
-        return obj._debug_generate("generation.log")
-    for x in range(num):
-        returning.append(str(x+1)+") "+obj._debug_generate("generation.log"))
-    return "\n".join(returning)
+	def __init__(self, directory=_DEFAULT_DIRECTORY):
+		"""
+		Constructor
+
+		Params
+		directory : Directory for the templates
+		"""
+
+		self._buildDictionaries(directory)
+
+		# in case we want to rebuild dictionaries,
+		# keep the method the same but give the option
+		# to call it as a public method
+		self.rebuildDictionaries = self._buildDictionaries
 
 
+	def _buildDictionaries(self, directory):
+		"""
+		Builds the dictionaries using the templates
+
+		Params
+		directory : Directory for the templates
+		"""
+
+		self._dictionaries = []
+
+		# for each file in the directory specified,
+		for filename in listdir(directory):
+			path = join(directory, filename)
+			if not isfile(path):
+				continue
+
+			# make a dictionary for it
+			word_dictionary = _Dictionary(filename.replace(".txt",""), path)
+			self._dictionaries.append(word_dictionary)
 
 
-def usage():
-    print "make a shitpost all by yourself"
-    print
-    print "usage: shitpost [option]..."
-    print "-h, --help        := display help"
-    print "-c, --count x     := display x number of posts"
-    print "-d, --directory x := use x for directory of words"
-    print
-    print "example:"
-    print "shitpost -h"
-    print "shitpost -c 20 -d words"
-    sys.exit(0)
+	def _generateSentence(self):
+		"""
+		Generates a sentence using the templates
+		"""
+
+		# starting off sentence generation with base sentence
+		sentence = "%base%"
+		still_updating = True
+
+		# until there were no updates in a pass, keep going through
+		# each dictionary and replacing %word% with a random word
+		while still_updating:
+			still_updating = False
+			for dictionary in self._dictionaries:
+				while "%"+dictionary.getName()+"%" in sentence:
+					still_updating = True
+					sentence = sentence.replace("%"+dictionary.getName()+"%", dictionary.pick(), 1)
+
+		# this line is for formatting hashtags correctly
+		sentence = "||".join([x.replace(" ","").replace("-","") if x[0] == "#" else x for x in sentence.split("||")])
+
+		# this is for removing the bars and any %nul% occurrences
+		sentence = sentence.replace("%nul%","").replace("||"," ").replace("|","")
+
+		# strip spaces on either side and return
+		return sentence.strip()
 
 
-#defaults
-count_arg = 1
-director_folder_arg = "Words"
+	def generate(self, count=1, asParagraph=False):
+		"""
+		Generates a number of sentences and can display them in certain ways
 
-def main():    
-    global count_arg
-    global _DIRECTOR_FOLDER_NAME
-    try:
-        opts,args=getopt(sys.argv[1:],"hc:d:",
-        ["help","count","directory"])
-    except GetoptError as err:
-        print str(err)
-        usage()
-    for o,a in opts:
-        if o in ["-h","--help"]:
-            usage()
-        elif o in ["-c","--count"]:
-            count_arg = int(a)
-        elif o in ["-d","--directory"]:
-            _DIRECTOR_FOLDER_NAME = a
-        else:
-            assert False,"Unhandled Option"
-    getShitpost(count_arg,_DIRECTOR_FOLDER_NAME)
+		Params
+		count       : How many lines of sentences to generate
+		asParagraph : If true, each sentence is treated like one of a paragraph
 
-main()
+		Returns
+		A number of generated sentences
+		"""
+
+		# if displaying just one, write the sentence out
+		if count is 1:
+			return self._generateSentence()
+
+		sentences = []
+		for i in range(count):
+			sentences.append(self._generateSentence())
+
+		# else, either number the sentences or write like a paragraph
+		if asParagraph:
+			return " ".join([sentence+"." for sentence in sentences])
+
+		return "\n".join([str(num+1)+") "+sentence for num, sentence in enumerate(sentences)])
+
+
+class _Dictionary:
+	"""
+	A dictionary (not quite the python kind of dict) of
+	words to pick from when generating a sentence
+	"""
+
+	_name = ""
+	_words = []
+
+
+	def __init__(self, name, path):
+		"""
+		Constructor
+		
+		Params
+		name : Name of this dictionary of words
+		path : Filepath to the file to read words from
+		"""
+
+		with open(path, "r") as f:
+			text = f.read()
+
+		# we remove \r incase some files
+		# are edited on windows
+		dictionary_words = text.replace("\r","").split("\n")
+
+		# in the case that the file was ended with a newline
+		if  dictionary_words[-1] == "":
+			del dictionary_words[-1]
+
+		self._name = name
+		self._words = dictionary_words
+
+
+	def pick(self):
+		"""
+		Picks a random word from the list of words
+
+		Returns
+		A random word
+		"""
+
+		return choice(self._words)
+
+
+	def getName(self):
+		"""
+		Gives the name of this dictionary
+
+		Returns
+		Name of dictionary
+		"""
+
+		return self._name;
+
+
+"""
+From here on is for if this is being called on command line.
+The original purpose of this project was to be able to generate
+shitposts on command line and was a learning experience, but
+now it has become a little more.
+
+The functionality of being able to call it from command line
+has been retained for extra fun and giggles.
+"""
+
+def _usage():
+	"""
+	Displays the help material for using shitpost
+	"""
+
+	print("usage: shitpost [option]...")
+	print("make a shitpost all by yourself")
+	print("-h, --help        := display help")
+	print("-c, --count x     := display x number of posts")
+	print("-d, --directory x := use x for directory of words")
+	print("-p, --paragraph   := display multiple sentences as a paragraph")
+	print("")
+	print("example:")
+	print("shitpost -h")
+	print("shitpost -c 20 -d words")
+	print("")
+	exit(0)
+
+
+# if this is being run directly
+if __name__ == "__main__":
+	
+	# defaults
+	count_arg = 1
+	directory = _DEFAULT_DIRECTORY
+	asParagraph = False
+
+	# get the options and arguments
+	try:
+		options, arguments = getopt(
+			argv[1:],
+			"hc:d:p",
+			["help", "count", "directory", "paragraph"]
+		)
+	except GetoptError as err:
+		print(str(err))
+		_usage()
+
+	# set the values to be used in the call
+	for opt, arg in options:
+		if opt in ["-h", "--help"]:
+			_usage()
+		elif opt in ["-c", "--count"]:
+			count_arg = int(arg)
+		elif opt in ["-d", "--directory"]:
+			directory = arg
+		elif opt in ["-p", "--paragraph"]:
+			asParagraph = True
+		else:
+			assert False, "Unhandled Option"
+
+	shitposter = Shitposter(directory)
+	print(shitposter.generate(count_arg, asParagraph=asParagraph))

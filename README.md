@@ -1,12 +1,24 @@
 # ShitpostPy
-Written in Python
-Requires googletrans, schedule, tweepy
+Generates sentences and posts them to twitter.
 
-Generates sentences and posts them to twitter
+Written in Python2.7 but it _should_ work in Python3
+
 
 ## Setup
-Make sure you have the requirements installed mentioned at the top of this README.
-Make a duplicate of secrets_template.py and name it secrets.py. Find your Twitter consumer key, access token, and their respective secrets and add them to secrets.py.
-Head into the Words directory and set up some formatting for sentence structure using the example.txt. Make sure the base sentence is named base.txt.
-Open up bot.py and set the sync times and delay between posts right at the top
-Run bot.py and it should start creating sentences and posting them to Twitter.
+
+### Dependencies
+* googletrans
+* schedule
+* tweepy
+
+### Configuration
+1. Make a duplicate of **settings_template.py** and name it **settings.py.**
+2. Find your Twitter consumer key, access token, and their respective secrets and add them to **settings.py** under the user section.
+3. Configure the minutes between posts and syncs per day in **settings.py** under the posts section.
+4. Head into the Words directory and set up some formatting for sentence structure using the **example.txt**. Make sure the base sentence is named **base.txt**.
+5. If you are going to use a premade *Words* directory, you can set the path to it in **settings.py**.
+6. Configure any words that you don't want to be seen in the posts in **restricted_words.txt**.
+
+
+## Running ShitpostPy
+Either doubleclick on **bot.py** or launch from command line. Enjoy!

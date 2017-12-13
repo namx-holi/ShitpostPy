@@ -1,65 +1,141 @@
 from googletrans import Translator
-from secrets import *
-from shitpost import *
+from random import choice
 import re
-import tweepy
-
-# create defaults
-translator = Translator()
-max_passes = 20
-lets_get_x_trending_pattern = re.compile("lets get #.* trending")
-# rarely but not never does translating certian things many times just
-# creates bad words. DO NOT WANT
-bad_words = ["rape", "shooting"]
-
-def _malform(text, translator=translator, lang='ja', max_passes=20):
-    """munts a sentence with google translate"""
-    for i in range(max_passes):
-        #print("Translating")
-        previous = text
-        temp = translator.translate(text, dest=lang)
-        text = translator.translate(temp.text, dest='en').text
-        if previous == text:
-            break
-    return text
+from tweepy import API, OAuthHandler
 
 
-def createTweet(translator=translator, max_passes=max_passes):
-    """creates a post and mangles it with google translate"""
-    initial_text = getShitpost()
+class Tweeter:
+	"""
+	Handler for posting tweets
+	"""
 
-    if lets_get_x_trending_pattern.match(initial_text):
-        tweet = initial_text[0].upper() + initial_text[1:]
-    else:
-        while True:
-            split_text = initial_text.split(" ")
-            text=[]
-            hashtags=[]
-            for word in split_text:
-                if word:
-                    if word[0] is not "#":
-                        text.append(word)
-                    else:
-                        hashtags.append(word)
-            text = " ".join(text)
-            hashtags = " ".join(hashtags)
-            text = _malform(text, max_passes=max_passes)
-            tweet = " ".join([text, hashtags]).strip()
-            for word in bad_words:
-                if word in tweet.split(" "):
-                    initial_text = getShitpost()
-                    continue
-            break
-    
-    return tweet
+	_api = None
+	_DEBUG = False
 
 
-def postTweet(tweet):
-    """posts a tweet"""
-    auth = tweepy.OAuthHandler(C_KEY, C_SECRET)  
-    auth.set_access_token(A_TOKEN, A_TOKEN_SECRET)  
-    api = tweepy.API(auth)
-    api.update_status(tweet)
+	def __init__(self, user):
+		"""
+		Constructor
 
-def _debug(x=20):
-    while 1:print(createTweet(max_passes=x))
+		Params
+		user : User credentials imported from settings
+		"""
+
+		auth = OAuthHandler(user["CONSUMER_KEY"], user["CONSUMER_SECRET"])
+		auth.set_access_token(user["ACCESS_TOKEN"], user["ACCESS_TOKEN_SECRET"])
+		api = API(auth)
+		self._api = api
+
+
+	def tweet(self, message):
+		"""
+		Posts a message to twitter
+
+		Params
+		message : Message to tweet
+		"""
+
+		if self._DEBUG:
+			print("Updating status with : \n\n"+message+"\n\n")
+		try:
+			self._api.update_status(message)
+		except Exception as err:
+			print(err)
+
+
+class SentenceMalformer:
+	"""
+	Mangles a sentence by translating it to and from languages
+	"""
+
+	_translator = None
+	_passes = 0
+	_replace_patterns = []
+	_languages = []
+	_DEBUG = False
+	_skipping_regexes = []
+	
+
+	def __init__(self, langs = ["ja"], passes = 20, skipping_regexes = []):
+		"""
+		Constructor
+
+		Params
+		langs            : List of languages to pick from when translating
+		passes           : Number of translations to go through before returning the sentence
+		skipping_regexes : If the generated sentence fits any of these formats, it won't get mangled
+		"""
+
+		self._translator = Translator()
+		self._languages = langs + ["en"]
+		self._passes = passes
+
+		for regex in skipping_regexes:
+			self._skipping_regexes.append(re.compile(regex))
+
+
+	def malform(self, string):
+		"""
+		Malforms a string by translating it several times
+		
+		Params
+		string : Sentence to malform
+		
+		Returns
+		Malformed sentence
+		"""
+
+		# if the sentence matches any of the skipping regexes, just return it
+		for regex in self._skipping_regexes:
+			if regex.match(string):
+				return string
+
+		last_lang = "en"
+		for i in range(self._passes - 1):
+			if self._DEBUG:
+				try:
+					print(last_lang + " : " + string)
+				except:
+					print(last_lang + " : " + "Could not display")
+
+			# choose a random language that wasn't the last language and translate it
+			lang = choice([lang for lang in self._languages if lang is not last_lang])
+			string = self._translator.translate(string, dest=lang).text
+			last_lang = lang
+
+		# make sure the last pass is to english
+		string = self._translator.translate(string, dest="en").text
+
+		string = self._fixHashtags(string)
+		return string
+
+
+	def _fixHashtags(self, string):
+		"""
+		Fixes up hashtags after being malformed
+
+		If a sentence is in the format:
+			"The quick brown # fox jumps over # lazy #dog"
+
+		This will make the sentence into:
+			"The quick brown #FoxJumpsOver #Lazy #Dog"
+
+		Params
+		string : String to fix up hashtags of
+
+		Returns
+		Sentence with fixed up hashtags
+		"""
+
+		if string.count("#") < 1:
+			return string
+		temp = string.split("#")
+		hashtags = ["#"+hashtag.title().replace(" ","") for hashtag in temp[1:] if hashtag.strip() is not u""]
+		return temp[0] + " ".join(hashtags)
+
+
+if __name__ == "__main__":
+	malformer = SentenceMalformer(["ja", "yi", "sw"], 20)
+	malformer._DEBUG = True
+	sentence = malformer.malform("It's over Anakin, I have the high ground")
+	print(sentence)

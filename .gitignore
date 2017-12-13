@@ -1,4 +1,6 @@
-secrets.py
+settings.py
 Words/*
-*.log
+*.pyc
+*.zip
+
 !Words/example.txt
