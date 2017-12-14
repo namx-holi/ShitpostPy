@@ -28,14 +28,13 @@ class Shitposter:
 	"""
 
 	_dictionaries = []
-	_googleTranslate = True
 
 
 	def __init__(self, directory=_DEFAULT_DIRECTORY):
 		"""
 		Constructor
 
-		Params
+		@Params
 		directory : Directory for the templates
 		"""
 
@@ -51,7 +50,7 @@ class Shitposter:
 		"""
 		Builds the dictionaries using the templates
 
-		Params
+		@Params
 		directory : Directory for the templates
 		"""
 
@@ -71,6 +70,9 @@ class Shitposter:
 	def _generateSentence(self):
 		"""
 		Generates a sentence using the templates
+
+		@Returns
+		A generated sentence
 		"""
 
 		# starting off sentence generation with base sentence
@@ -100,11 +102,11 @@ class Shitposter:
 		"""
 		Generates a number of sentences and can display them in certain ways
 
-		Params
+		@Params
 		count       : How many lines of sentences to generate
 		asParagraph : If true, each sentence is treated like one of a paragraph
 
-		Returns
+		@Returns
 		A number of generated sentences
 		"""
 
@@ -137,7 +139,7 @@ class _Dictionary:
 		"""
 		Constructor
 		
-		Params
+		@Params
 		name : Name of this dictionary of words
 		path : Filepath to the file to read words from
 		"""
@@ -161,7 +163,7 @@ class _Dictionary:
 		"""
 		Picks a random word from the list of words
 
-		Returns
+		@Returns
 		A random word
 		"""
 
@@ -172,7 +174,7 @@ class _Dictionary:
 		"""
 		Gives the name of this dictionary
 
-		Returns
+		@Returns
 		Name of dictionary
 		"""
 

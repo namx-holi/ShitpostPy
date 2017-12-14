@@ -22,7 +22,7 @@ class Bot:
 		"""
 		Constructor
 
-		Params
+		@Params
 		user                  : User credentials imported from settings
 		minutes_between_posts : Time between calls of the method in minutes
 		syncs_per_day         : How often to resync the timer with the clock
@@ -88,11 +88,11 @@ class Bot:
 		this will check for if a restricted word is contained within a word.
 		Otherwise this just checks if there is an exact match.
 
-		Params
+		@Params
 		sentence : The sentence to check for restricted words
 		exact    : If looking for an exact match
 
-		Returns
+		@Returns
 		True if a restricted word is contained in the sentence
 		"""
 		
@@ -110,7 +110,7 @@ class Bot:
 		"""
 		Loads words to not use when posting
 
-		Params
+		@Params
 		path : Path to the file containing restricted words
 		"""
 		

@@ -17,7 +17,7 @@ class Tweeter:
 		"""
 		Constructor
 
-		Params
+		@Params
 		user : User credentials imported from settings
 		"""
 
@@ -31,7 +31,7 @@ class Tweeter:
 		"""
 		Posts a message to twitter
 
-		Params
+		@Params
 		message : Message to tweet
 		"""
 
@@ -50,7 +50,6 @@ class SentenceMalformer:
 
 	_translator = None
 	_passes = 0
-	_replace_patterns = []
 	_languages = []
 	_DEBUG = False
 	_skipping_regexes = []
@@ -60,7 +59,7 @@ class SentenceMalformer:
 		"""
 		Constructor
 
-		Params
+		@Params
 		langs            : List of languages to pick from when translating
 		passes           : Number of translations to go through before returning the sentence
 		skipping_regexes : If the generated sentence fits any of these formats, it won't get mangled
@@ -78,10 +77,10 @@ class SentenceMalformer:
 		"""
 		Malforms a string by translating it several times
 		
-		Params
+		@Params
 		string : Sentence to malform
 		
-		Returns
+		@Returns
 		Malformed sentence
 		"""
 
@@ -120,10 +119,10 @@ class SentenceMalformer:
 		This will make the sentence into:
 			"The quick brown #FoxJumpsOver #Lazy #Dog"
 
-		Params
+		@Params
 		string : String to fix up hashtags of
 
-		Returns
+		@Returns
 		Sentence with fixed up hashtags
 		"""
 

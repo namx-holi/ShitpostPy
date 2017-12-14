@@ -26,7 +26,7 @@ class TimedTrigger:
 		"""
 		Constructor
 
-		Params
+		@Params
 		method                : Method to be called when the timer is triggered
 		minutes_between_posts : Time between calls of the method in minutes
 		syncs_per_day         : How often to resync the timer with the clock
@@ -74,7 +74,7 @@ class TimedTrigger:
 		"""
 		Displays a message with the current time as a timestamp
 
-		Params
+		@Params
 		message : Message to display in console
 		"""
 
@@ -140,7 +140,7 @@ class TimedTrigger:
 		"""
 		Gets current time of the day as seconds from midnight
 
-		Returns
+		@Returns
 		Number of seconds from the start of the day
 		"""
 
@@ -158,13 +158,13 @@ class TimedTrigger:
 		"""
 		Formats time into hh:mm:ss, or the same but without hh or mm or ss.
 
-		Params
+		@Params
 		input_seconds : Time of the day in seconds
 		show_hours    : Show hours in hh:mm:ss?
 		show_minutes  : Show minutes in hh:mm:ss?
 		show_seconds  : Show seconds in hh:mm:ss?
 
-		Returns
+		@Returns
 		Time formatted in hh:mm:ss
 		"""
 
