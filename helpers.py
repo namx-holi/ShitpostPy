@@ -10,7 +10,7 @@ class Tweeter:
 	"""
 
 	_api = None
-	_DEBUG = False
+	_POSTING = True
 
 
 	def __init__(self, user):
@@ -35,12 +35,14 @@ class Tweeter:
 		message : Message to tweet
 		"""
 
-		if self._DEBUG:
-			print("Updating status with : \n\n"+message+"\n\n")
-		try:
-			self._api.update_status(message)
-		except Exception as err:
-			print(err)
+		if self._POSTING:
+			try:
+				self._api.update_status(message)
+			except Exception as err:
+				print(err)
+				
+		else:
+			print("Would update status with : \n"+message+"\n")
 
 
 class SentenceMalformer:

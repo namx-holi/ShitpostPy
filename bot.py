@@ -1,8 +1,20 @@
-from shitpost import Shitposter
+#!/usr/bin/python
+
+"""
+PLEASE PUT MY SON TO GOOD USE
+
+@parent : Namx-Holi
+@born   : November 1st, 2017
+"""
+
+
 from helpers import SentenceMalformer, Tweeter
+from shitpost import Shitposter
 from timedtrigger import TimedTrigger
+
 from settings import user as USER
 from settings import posts as POSTS
+from settings import posting_to_twitter as DO_POST
 
 
 class Bot:
@@ -18,30 +30,33 @@ class Bot:
 	_DEBUG = False
 
 
-	def __init__(self, user, minutes_between_posts, syncs_per_day):
+	def __init__(self, user, cron_expression, custom_messages=None):
 		"""
 		Constructor
 
 		@Params
-		user                  : User credentials imported from settings
-		minutes_between_posts : Time between calls of the method in minutes
-		syncs_per_day         : How often to resync the timer with the clock
+		user            : User credentials imported from settings
+		cron_expression : Expression to use for posting times
+		custom_messages : Messages to use when logging
 		"""
 
 		self._shitposter = Shitposter()
 		self._malformer = SentenceMalformer(["ja", "yi", "sw"], 20)
 		self._tweeter = Tweeter(user)
 
-		custom_messages = {
-			"starting": "Shitposting is starting from now",
-			"triggering": "Creating new sentence",
-			"syncing": "Syncing"
-		}
+		if not DO_POST:
+			self._tweeter._POSTING = False
+
+		if custom_messages is None:
+			custom_messages = {
+				"starting": "Shitposting is starting from now",
+				"triggering": "Creating new sentence",
+				"syncing": "Syncing"
+			}
 
 		self._timer = TimedTrigger(
 			self._postTweet,
-			minutes_between_posts,
-			syncs_per_day,
+			cron_expression,
 			custom_messages=custom_messages)
 
 		self._loadRestrictedWords()
@@ -120,5 +135,5 @@ class Bot:
 
 
 if __name__ == "__main__":
-	bot = Bot(USER, POSTS["POST_DELAY"], POSTS["SYNCS_PER_DAY"])
+	bot = Bot(USER, POSTS["CRON_EXPRESSION"], POSTS["MESSAGES"])
 	bot.start()

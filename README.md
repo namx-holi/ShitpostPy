@@ -7,8 +7,8 @@ Written in Python2.7 but it _should_ work in Python3
 ## Setup
 
 ### Dependencies
+* cronex
 * googletrans
-* schedule
 * tweepy
 
 ### Configuration
