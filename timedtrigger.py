@@ -79,7 +79,7 @@ class TimedTrigger:
 		message : Message to display in console
 		"""
 
-		print("[%s] %s" % (str(datetime.now()), message))
+		print("\r[%s] %s" % (str(datetime.now()), message))
 
 
 	def _run_method(self):
