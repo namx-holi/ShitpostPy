@@ -1,7 +1,7 @@
 # ShitpostPy
 Generates sentences and posts them to twitter.
 
-Written in Python2.7 but it _should_ work in Python3
+Written in Python2.7 but it also works in Python3.
 
 
 ## Setup
